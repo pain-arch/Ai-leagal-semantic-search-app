@@ -8,6 +8,7 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { promises as fs } from "fs";
 import { type Document } from "../types/document";
+import { v4 as uuidv4 } from "uuid";
 
 const readMetadata = async (): Promise<Document["metadata"][]> => {
   try {
@@ -19,6 +20,23 @@ const readMetadata = async (): Promise<Document["metadata"][]> => {
     console.warn("Couldn't read metadata from db.json:", error);
     return [];
   }
+};
+
+// Prepare metadata for upsert to Pinecone - Langchain's PDF loader adds some
+// fields that we want to remove before upserting to Pinecone, because Pinecone
+// requires that metadata is a string, number or array (not an object)
+const flattenMetadata = (metadata: any): Document["metadata"] => {
+  const flatMetadata = { ...metadata };
+  if (flatMetadata.pdf) {
+    if (flatMetadata.pdf.pageCount) {
+      flatMetadata.totalPages = flatMetadata.pdf.pageCount;
+    }
+    delete flatMetadata.pdf;
+  }
+  if (flatMetadata.loc) {
+    delete flatMetadata.loc;
+  }
+  return flatMetadata;
 };
 
 export const initiateBootstraping = async (targetindex: string) => {
@@ -127,6 +145,15 @@ export const handleBootstrapping = async (targetIndex: string) => {
         console.log("Skipping batch - no valid content");
         continue;
       }
+
+      const castedBatch: Document[] = validBatch.map((split) => ({
+        pageContent: split.pageContent.trim(),
+        metadata: {
+          ...flattenMetadata(split.metadata as Document["metadata"]),
+          id: uuidv4(),
+          pageContent: split.pageContent.trim(),
+        },
+      }));
 
     }
 
