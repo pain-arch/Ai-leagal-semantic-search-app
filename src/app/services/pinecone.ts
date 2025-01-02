@@ -4,7 +4,7 @@ const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY as string,
 });
 
-export async function createIndexIfNessesary(indexName: string) {
+export async function createIndexIfNecessary(indexName: string) {
   await pinecone.createIndex({
     name: indexName,
     dimension: 1024,
