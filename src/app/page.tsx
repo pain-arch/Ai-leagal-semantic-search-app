@@ -37,7 +37,30 @@ const checkAndBootstrapIndex = async (
   setIsIndexReady(true);
 };
 
+const handleSearch = async (
+  query: string,
+  setResults: (results: SearchResult[]) => void,
+  setIsSearching: (isSearching: boolean) => void
+) => {
+  setIsSearching(true);
+  const response = await fetch("/api/search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ query }),
+  });
 
+  if (!response.ok) {
+    const body = await response.json();
+    console.log(body);
+    throw new Error(`API request failed with status ${response.status}`);
+  }
+
+  const { results } = await response.json();
+  setResults(results);
+  setIsSearching(false);
+};
 
 
 
