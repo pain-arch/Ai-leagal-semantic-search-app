@@ -62,7 +62,20 @@ const handleSearch = async (
   setIsSearching(false);
 };
 
-
+const suggestedSearches = [
+  "Cases about personal freedoms being violated",
+  "Cases involving a US President",
+  "Cases involving guns",
+  "Cases where Nixon was the defendant",
+  "How much power does the commerce clause give Congress?",
+  "Cases about personal rights or congressional overreach?",
+  "Cases involving the ability to pay for an attorney",
+  "Cases about the right to remain silent",
+  "Landmark cases that shaped freedom of speech laws",
+  "Cases where defendant was found with a gun",
+  "What cases involved personal rights or congressional overreach?",
+  "Cases where the judge expressed grave concern",
+];
 
 export default function Home() {
   
